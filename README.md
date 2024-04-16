@@ -1,4 +1,4 @@
-Title: Start with a clear title like "Scraping IMDb Data and Storing in Database and create CSV file".
+Title:  "Web Scraping , extract Data and Storing in Database and create CSV file".
 
 Dependencies: List all the dependencies needed to run the script. For example:
 - Python 3.9.6
