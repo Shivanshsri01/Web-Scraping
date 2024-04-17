@@ -55,7 +55,7 @@ Before running this script, ensure you have the following installed:
 
 - If the script fails to retrieve data from the specified URL, it prints "Failed to retrieve data."
 - If no data is scraped, it prints "No data scraped."
-- The exported CSV file (brand_data.csv) will contain two columns: "name" and "link" representing the anime title and its corresponding link.
+- The exported CSV file (brand_data.csv) will contain one columns: "name" representing data.
 
 ### Author
 
