@@ -41,5 +41,6 @@ Before running this script, ensure you have the following installed:
 
 This script is authored by Shivansh Srivastava .Feel free for any question or improvement.
 
-### L
+### License
+This project is licensed under the MIT License. Copyright © 2024 Shivansh Srivastava.
 
