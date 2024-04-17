@@ -14,8 +14,11 @@ Before running this script, ensure you have the following installed:
 ### Steps
 
 1. **Import Libraries**: The script imports necessary libraries: `requests`, `csv`, `BeautifulSoup`, and `psycopg2`.
+   
    **install using pip install requests`**
+   
    **install using `pip install beautifulsoup4`**
+   
    **install using `pip install psycopg2`**
 
 3. **Establish Database Connection**: It establishes a connection to the PostgreSQL database using the provided credentials.
