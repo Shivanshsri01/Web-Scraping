@@ -43,7 +43,7 @@ Make sure you have a PostgreSQL database set up with the following credentials:
 - If the script fails to retrieve data from the specified URL, it prints "Failed to retrieve data."
 - If no data is scraped, it prints "No data scraped."
 
-### Authoe
+### Author
 
 This script is authored by Shivansh Srivastava .Feel free for any question or improvement.
 
