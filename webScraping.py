@@ -1,51 +1,83 @@
-import requests
-import csv
-from bs4 import BeautifulSoup
-import psycopg2
 
+import csv  # Import the csv module for handling CSV files
+
+import psycopg2  # Import the psycopg2 module for interacting with PostgreSQL databases
+
+import requests  # Import the requests module for sending HTTP requests
+
+from bs4 import BeautifulSoup # Create a BeautifulSoup object to parse the HTML content of the webpage
+
+# Establish a connection to the PostgreSQL database
 con = psycopg2.connect(
-database="postgres",
-user="postgres",
-password="123456",
-host="localhost",
-port= '5432'
+    database="postgres",
+    user="postgres",
+    password="123456",
+    host="localhost",
+    port="5432"
 )
-cursor_obj = con.cursor()
-def imdb(url):
-    response = requests.get(url)
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.content, "html.parser")
-        movie_data = []
-        for movie_elem in soup.find_all("div", class_="redHightlight"):
-            name = movie_elem.find("h3").text.strip()
-            movie_data.append({
-                "name": name
-            })
-        return movie_data
-    else:
-        print("Failed to retrieve data")
-        return []
 
-if __name__ == "__main__":
-    url = "http://www.picasso.com/"
-    movie_data = imdb(url)
-    if movie_data:
-        for movie in movie_data:
-            print(movie)
-            cursor_obj.execute("INSERT INTO emp(name) VALUES(%s)", (movie["name"],))
-        con.commit()
-        cursor_obj.execute("SELECT * FROM emp")
-        rows = cursor_obj.fetchall()
+# Create a cursor object to execute SQL commands within the connected database
+cur = con.cursor()
 
-        for row in rows:
-           print(row)
-        csv_file = "brand_data.csv"
+# Execute an SQL command to create the 'emp' table if it doesn't exist
+cur.execute("""
+    CREATE TABLE IF NOT EXISTS emp (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255),
+        link TEXT UNIQUE
+    )
+""")
 
-        with open(csv_file, 'w', newline='') as file:
-         writer = csv.writer(file)
-         writer.writerow([desc[0] for desc in cursor_obj.description])
-         writer.writerows(rows)  
-        cursor_obj.close()
-        con.close()   
-    else:
-        print("No data scraped")
+# Define the URL of the webpage to scrape
+url = "https://animesuge.to/movie"
+
+# Send an HTTP GET request to the URL and store the response
+response = requests.get(url)
+
+# Create a BeautifulSoup object to parse the HTML content of the webpage
+soup = BeautifulSoup(response.content, "html.parser")
+
+# Find all <div> elements with the class 'item' which contain anime data
+main_div = soup.find_all('div', class_='item')
+
+# Iterate over each <div> element containing  data
+for div in main_div:
+    # Find all <a> elements (links) within the <div>
+    anchor = div.find_all('a')
+    # Iterate over each link
+    for a in anchor:
+        # Extract title
+        name = a.text.strip().replace(',', "")
+        # Extract link
+        link = div.a['href'].strip().replace(',', "")
+        try:
+            # Insert the cleaned data into the 'emp' table
+            cur.execute("INSERT INTO emp (name, link) VALUES (%s, %s)", (name, link))
+        except psycopg2.IntegrityError:
+            # If the record already exists, ignore and continue
+            con.rollback()
+
+# Commit the changes to the database
+con.commit()
+
+# Execute an SQL command to retrieve all records from the 'emp' table
+cur.execute("SELECT * FROM emp")
+
+# Fetch all the retrieved records
+p = cur.fetchall()
+
+# Export the fetched records to a CSV file named 'emp.csv'
+with open("emp.csv", 'w', newline='', encoding='utf-8') as file:
+    writer = csv.writer(file)
+    # Write the header row with column names obtained from the cursor description
+    writer.writerow([desc[0] for desc in cur.description])
+    # Write the data rows
+    writer.writerows(p)
+
+# Print each fetched record
+for x in p:
+    print(x)
+
+# Close the cursor and the database connection
+cur.close()
+con.close()
